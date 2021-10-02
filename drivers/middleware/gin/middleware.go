@@ -1,8 +1,6 @@
 package gin
 
 import (
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/ulule/limiter/v3"
@@ -10,11 +8,12 @@ import (
 
 // Middleware is the middleware for gin.
 type Middleware struct {
-	Limiter        *limiter.Limiter
-	OnError        ErrorHandler
-	OnLimitReached LimitReachedHandler
-	KeyGetter      KeyGetter
-	ExcludedKey    func(string) bool
+	Limiter            *limiter.Limiter
+	OnError            ErrorHandler
+	OnLimitReached     LimitReachedHandler
+	KeyGetter          KeyGetter
+	ExcludedKey        func(string) bool
+	SkipFailedRequests bool
 }
 
 // NewMiddleware return a new instance of a gin middleware.
@@ -51,15 +50,17 @@ func (middleware *Middleware) Handle(c *gin.Context) {
 		return
 	}
 
-	c.Header("X-RateLimit-Limit", strconv.FormatInt(context.Limit, 10))
-	c.Header("X-RateLimit-Remaining", strconv.FormatInt(context.Remaining, 10))
-	c.Header("X-RateLimit-Reset", strconv.FormatInt(context.Reset, 10))
-
 	if context.Reached {
 		middleware.OnLimitReached(c)
+		c.Set("reachedLimit", true)
 		c.Abort()
 		return
 	}
 
 	c.Next()
+	if middleware.SkipFailedRequests {
+		if !c.GetBool("reachedLimit") {
+			_ = middleware.Limiter.Decr(c, key)
+		}
+	}
 }

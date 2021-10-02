@@ -57,6 +57,13 @@ func WithKeyGetter(handler KeyGetter) Option {
 	})
 }
 
+// SkipFailedRequests determines weather to skip failed requests from counting
+func SkipFailedRequests(skip bool) Option {
+	return option(func(middleware *Middleware) {
+		middleware.SkipFailedRequests = skip
+	})
+}
+
 // DefaultKeyGetter is the default KeyGetter used by a new Middleware.
 // It returns the Client IP address.
 func DefaultKeyGetter(c *gin.Context) string {
