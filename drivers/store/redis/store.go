@@ -50,7 +50,7 @@ type Client interface {
 	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *libredis.BoolCmd
 	EvalSha(ctx context.Context, sha string, keys []string, args ...interface{}) *libredis.Cmd
 	ScriptLoad(ctx context.Context, script string) *libredis.StringCmd
-	Decr(ctx context.Context, key string) error
+	Decr(ctx context.Context, key string) *libredis.IntCmd
 }
 
 // Store is the redis store.
@@ -98,7 +98,7 @@ func NewStoreWithOptions(client Client, options limiter.StoreOptions) (limiter.S
 }
 
 func (store *Store) Decr(ctx context.Context, key string, rate limiter.Rate) error {
-	return store.client.Decr(ctx, key)
+	return store.client.Decr(ctx, key).Err()
 }
 
 // Get returns the limit for given identifier.
