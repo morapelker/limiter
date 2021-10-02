@@ -98,6 +98,7 @@ func NewStoreWithOptions(client Client, options limiter.StoreOptions) (limiter.S
 }
 
 func (store *Store) Decr(ctx context.Context, key string, rate limiter.Rate) error {
+	key = fmt.Sprintf("%s:%s", store.Prefix, key)
 	return store.client.Decr(ctx, key).Err()
 }
 
