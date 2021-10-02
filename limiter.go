@@ -44,6 +44,10 @@ func New(store Store, rate Rate, options ...Option) *Limiter {
 	}
 }
 
+func (limiter *Limiter) Decr(ctx context.Context, key string) error {
+	return limiter.Store.Decr(ctx, key, limiter.Rate)
+}
+
 // Get returns the limit for given identifier.
 func (limiter *Limiter) Get(ctx context.Context, key string) (Context, error) {
 	return limiter.Store.Get(ctx, key, limiter.Rate)

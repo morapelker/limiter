@@ -17,6 +17,10 @@ type Store struct {
 	cache *CacheWrapper
 }
 
+func (store *Store) Decr(ctx context.Context, key string, rate limiter.Rate) error {
+	panic("implement me")
+}
+
 // NewStore creates a new instance of memory store with defaults.
 func NewStore() limiter.Store {
 	return NewStoreWithOptions(limiter.StoreOptions{
